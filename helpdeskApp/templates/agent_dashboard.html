@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Helpdesk Agent Dashboard</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-top: 30px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            line-height: 1.6;
+        }
+
+        li strong {
+            color: #2c3e50;
+            font-size: 16px;
+        }
+
+        li a {
+            color: #3498db;
+            text-decoration: none;
+            margin-right: 10px;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        li a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        a[href*="/logout"] {
+            display: block;
+            text-align: center;
+            color: #e74c3c;
+            text-decoration: none;
+            font-size: 16px;
+            margin-top: 20px;
+            padding: 10px;
+            transition: color 0.3s;
+        }
+
+        a[href*="/logout"]:hover {
+            color:rgb(43, 192, 75);
+            text-decoration: underline;
+        }
+
+        .filter-form {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .filter-form label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-right: 10px;
+        }
+
+        .filter-form select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #333;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .filter-form select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            li {
+                padding: 10px;
+            }
+
+            li a {
+                display: inline-block;
+                margin-bottom: 5px;
+            }
+
+            .filter-form {
+                padding: 10px;
+            }
+
+            .filter-form select {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <h2>Agent dashboard</h2>
+    <h1>{{ user.username }}'s Tickets</h1>
+
+  <form method="get" class="filter-form">
+    {% csrf_token %}
+    <label for="status_filter">Filter by Status:</label>
+    <select name="status" id="status_filter" onchange="this.form.submit()">
+        <option value="">All</option>
+        <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
+        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolved</option>
+        <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
+    </select>
+</form>
+
+    {% if tickets %}
+        <ul>
+            {% for ticket in tickets %}
+            <li>
+                <strong>{{ ticket.subject }}</strong><br>
+                From: {{ ticket.created_by.username }}<br>
+                Status: {{ ticket.status }}<br>
+                Description: {{ ticket.description }}<br>
+                Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
+                
+                <a href="{% url 'ticket_detail' ticket.id %}">VIEW / COMMENT</a> |
+                <a href="{% url 'update_ticket_status' ticket.id %}">Update status</a>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p style="text-align: center;">No tickets found for the selected status.</p>
+    {% endif %}
+
+    <h2>Waiting Tickets</h2>
+    <ul>
+        {% for ticket in unassigned_tickets %}
+            <li>
+                <strong>{{ ticket.subject }}</strong><br>
+                From: {{ ticket.created_by.username }}<br>
+                Description: {{ ticket.description }}<br>
+                <a href="{% url 'claim_ticket' ticket.id %}">Accept ticket</a>
+            </li>
+        {% empty %}
+            <li>No ticket</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'logout' %}">Logout</a>
+</body>
+</html>
