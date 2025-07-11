@@ -26,8 +26,6 @@ urlpatterns = [
     path('worker/', views.worker_dashboard, name='worker_dashboard'),
     path('agent/', views.agent_dashboard, name='agent_dashboard'),
     
-    
-    
     path('agent/ticket/<int:ticket_id>/update/', views.update_ticket_status, name='update_ticket_status'),
 
     path('helpdeskApp/', include ('helpdeskApp.urls')),

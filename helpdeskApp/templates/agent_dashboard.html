@@ -1,194 +1,482 @@
-<!DOCTYPE html>
+{% load static %}
 <html>
 <head>
     <title>Helpdesk Agent Dashboard</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-
-        h1, h2 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            font-size: 28px;
-        }
-
-        h2 {
-            font-size: 22px;
-            margin-top: 30px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #fff;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            line-height: 1.6;
-        }
-
-        li strong {
-            color: #2c3e50;
-            font-size: 16px;
-        }
-
-        li a {
-            color: #3498db;
-            text-decoration: none;
-            margin-right: 10px;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-
-        li a:hover {
-            color: #2980b9;
-            text-decoration: underline;
-        }
-
-        a[href*="/logout"] {
-            display: block;
-            text-align: center;
-            color: #e74c3c;
-            text-decoration: none;
-            font-size: 16px;
-            margin-top: 20px;
-            padding: 10px;
-            transition: color 0.3s;
-        }
-
-        a[href*="/logout"]:hover {
-            color:rgb(43, 192, 75);
-            text-decoration: underline;
-        }
-
-        .filter-form {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .filter-form label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-right: 10px;
-        }
-
-        .filter-form select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #333;
-            background-color: #fff;
-            cursor: pointer;
-        }
-
-        .filter-form select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-
-            li {
-                padding: 10px;
-            }
-
-            li a {
-                display: inline-block;
-                margin-bottom: 5px;
-            }
-
-            .filter-form {
-                padding: 10px;
-            }
-
-            .filter-form select {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/agent.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 </head>
+
+<nav class="navbar">
+    <a href="/agent" class="logo">Agent Dashboard</a>
+    <ul class="nav-links">
+        <li><a href="#my-tickets">My Tickets</a></li>
+        <li><a href="#waiting-ticket">Unassigned</a></li>
+        <li><a class="logout" href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+</nav>
+
 <body>
-    <h2>Agent dashboard</h2>
-    <h1>{{ user.username }}'s Tickets</h1>
+    <h1 style="display:flex; justify-content: center;">Welcome Agent {{ user.username }}! </h1>
+    
+            <p class="text-text-secondary">
+                Here's your dashboard overview for <span id="current-date"></span>
+            </p>
 
-  <form method="get" class="filter-form">
-    {% csrf_token %}
-    <label for="status_filter">Filter by Status:</label>
-    <select name="status" id="status_filter" onchange="this.form.submit()">
-        <option value="">All</option>
-        <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
-        <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-        <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolved</option>
-        <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
-    </select>
-</form>
+<div class="part_one">
+    
+        <section id="ticket-summary">
+            <h2>Ticket Summary</h2>
 
-    {% if tickets %}
-        <ul>
-            {% for ticket in tickets %}
-            <li>
-                <strong>{{ ticket.subject }}</strong><br>
-                From: {{ ticket.created_by.username }}<br>
-                Status: {{ ticket.status }}<br>
-                Description: {{ ticket.description }}<br>
-                Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
-                
-                <a href="{% url 'ticket_detail' ticket.id %}">VIEW / COMMENT</a> |
-                <a href="{% url 'update_ticket_status' ticket.id %}">Update status</a>
-            </li>
+            {% comment %} <div class="chart-cards">
+
+                <div class="chart-container">
+                    <h3>Ticket Status</h3>
+                    <canvas id="ticketChart" width="350" height="350" style="max-width: 350px; max-height: 350px;"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Tickets by Priority</h3>
+                    <canvas id="priorityChart" width="350" height="350"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Tickets Accepted</h3>
+                    <canvas id="trendChart" width="400" height="400"></canvas>
+                </div>
+            </div> {% endcomment %}
+
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                <button onclick="showChart('status')" class="chart-btn">Ticket Status</button>
+                <button onclick="showChart('priority')" class="chart-btn">Tickets by Priority</button>
+                <button onclick="showChart('trend')" class="chart-btn">Tickets Accepted</button>
+            </div>
+
+            <div class="chart-cards">
+                <div id="chart-status" class="chart-container" style="display: block;">
+                    <h3>Ticket Status</h3>
+                    <canvas id="ticketChart" width="350" height="350"></canvas>
+                </div>
+
+                <div id="chart-priority" class="chart-container" style="display: none;">
+                    <h3>Tickets by Priority</h3>
+                    <canvas id="priorityChart" width="350" height="350"></canvas>
+                </div>
+
+                <div id="chart-trend" class="chart-container" style="display: none;">
+                    <h3>Tickets Accepted</h3>
+                    <canvas id="trendChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+    {% comment %} <h2>Agent dashboard</h2> {% endcomment %}
+        <section id="recent-activity">
+            <h2>Recent Comments</h2>
+            <ul>
+                {% if recent_comments %}
+                    {% for comment in recent_comments %}
+                        <li>
+                            <strong>{{ comment.author.username }}</strong> commented on 
+                            <a href="{% url 'ticket_detail' comment.ticket.id %}">{{ comment.ticket.subject|truncatewords:6 }}</a><br>
+                            <small>{{ comment.created_at}}</small>
+                            <p>{{ comment.content|truncatewords:15 }}</p>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li>No recent activity.</li>
+                {% endif %}
+            </ul>
+        </section>
+
+        <section id="recent-activity">
+            <h2>Recent Activity</h2>
+            <ul class="recent-activity-list">
+                {% if recent_activity %}
+                    {% for activity in recent_activity %}
+                        <li>
+                            <span class="activity-text">
+                                {% if activity.type == 'resolved' %}
+                                    Resolved ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
+                                {% elif activity.type == 'closed' %}
+                                    Closed ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
+                                {% elif activity.type == 'updated' %}
+                                    Updated ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
+                                {% elif activity.type == 'assigned' %}
+                                    New ticket assigned <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
+                                {% endif %}
+                            </span>
+                            <br>
+                            <small>{{ activity.timestamp|timesince }} ago</small>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li>No recent activity.</li>
+                {% endif %}
+            </ul>
+        </section>
+    
+        
+        
+    </div>
+
+        <form method="get" action="{% url 'agent_dashboard' %}" class="search-form">
+            <!-- Search input -->
+            <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
+
+            <!-- Category dropdown -->
+            <select name="category" class="filter-select">
+                <option value="">All Categories</option>
+                <option value="software" {% if category == 'software' %}selected{% endif %}>Software</option>
+                <option value="hardware" {% if category == 'hardware' %}selected{% endif %}>Hardware</option>
+                <option value="network" {% if category == 'network' %}selected{% endif %}>Network</option>
+                <option value="other" {% if category == 'other' %}selected{% endif %}>Other</option>
+            </select>
+
+            <select name="priority" class="filter-select">
+                <option value="">Priority</option>
+                <option value= "high" {% if priority == 'high' %}selected{% endif %}>High</option>
+                <option value= "medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
+                <option value= "low" {% if priority == 'low' %}selected{% endif %}>Low</option>
+            </select>
+
+            <!-- Status dropdown -->
+            <select name="status" class="filter-select">
+                <option value="">All Statuses</option>
+                <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+                <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+
+            <input type="date" name="created_from" value="{{ created_from }}">
+            <input type="date" name="created_to" value="{{ created_to }}">
+         
+            <!-- Buttons -->
+            <button type="submit" class="search-button">Filter</button>
+            <a href="{% url 'agent_dashboard' %}" class="reset-button">Reset</a>
+        </form>
+
+        <div style=" display:flex;justify-content: center;">
+        {% comment %} pjesa e titullit qe tregon cfare tickets po shfaqen  {% endcomment %}
+            {% if status or category or priority or created_from or created_to or search_query %}
+                <div class="filter-info" role="region" aria-live="polite" aria-atomic="true" aria-label="Filter information">
+                    <strong>Showing tickets with:</strong>
+                    {% if status %} <span>Status: {{ status|title }}</span>{% endif %}
+                    {% if category %} <span>Category: {{ category|title }}</span>{% endif %}
+                    {% if priority %} <span>Priority: {{ priority|title }}</span>{% endif %}
+                    {% if created_from and created_to and created_from == created_to %}
+                        <span>Date: {{ created_from }}</span>
+                    {% elif created_from or created_to %}
+                        <span>Date Range: {{ created_from|default:"Any" }} to {{ created_to|default:"Any" }}</span>
+                    {% endif %}
+                    {% if search_query %} <span>Search: "{{ search_query }}"</span>{% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+    
+    <div style="display:flex; justify-content: flex-start; gap:16px;">
+
+        <form method="get" action="{% url 'agent_dashboard' %}" style="margin-bottom: 1rem; text-align: center;">
+            <!-- Preserve existing GET parameters except 'created_from' and 'created_to' -->
+            {% for key, value in request.GET.items %}
+                {% if key != 'created_from' and key != 'created_to' %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
             {% endfor %}
-        </ul>
+            
+            <button type="submit" name="created_from" value="{% now 'Y-m-d' %}" 
+                    formaction="{% url 'agent_dashboard' %}" 
+                    formmethod="get" style="padding:15px; ">
+                Show Today's Tickets
+            </button>
+        </form>
+
+        <form method="get" action="{% url 'agent_dashboard' %}" style="margin-bottom: 1rem; text-align: center;">
+            {% for key, value in request.GET.items %}
+                {% if key != 'show_all' %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endif %}
+            {% endfor %}
+            <button type="submit" name="show_all" value="{% if show_all %}0{% else %}1{% endif %}" style="padding:15px; border-radius: 12px; background-color:#ffc4be; border:none; color:#fff; font-weight:600; cursor:pointer;">
+                {% if show_all %}
+                    Show Last 7 Days Tickets
+                {% else %}
+                    Show All Accepted Tickets
+                {% endif %}
+            </button>
+        </form>
+    </div>
+                {% if not status and not category and not priority and not created_from and not created_to and not search_query %}
+                    <h2 style="text-align: center; margin-bottom: 1rem;">
+                        {% if show_all %}
+                            All Accepted Tickets
+                        {% else %}
+                            Last 7 Days Tickets
+                        {% endif %}
+                    </h2>
+                {% endif %}
+                
+
+    <div class="tt" id="my-tickets">
+    {% if tickets %}
+        {% for ticket in tickets %}
+        <div class="ticket-item {{ ticket.priority }}">
+            <strong>{{ ticket.subject }}</strong><br>
+            From: {{ ticket.created_by.username }}<br>
+            Status: {{ ticket.status }}<br>
+            Priority: <span class="priority-label {{ ticket.priority }}">{{ ticket.priority|title }}</span><br>
+            Description: {{ ticket.description }}<br>
+            Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
+
+            <a href="{% url 'ticket_detail' ticket.id %}">VIEW / COMMENT</a> |
+            <a href="{% url 'update_ticket_status' ticket.id %}">Update status</a>
+        </div>
+        {% endfor %}
     {% else %}
-        <p style="text-align: center;">No tickets found for the selected status.</p>
+            <p style="text-align: center;">No tickets found for the selected option.</p>
     {% endif %}
 
-    <h2>Waiting Tickets</h2>
-    <ul>
+    </div>
+
+<div>
+    <h2 style="display:flex; justify-content:center">Unassigned Tickets</h2>
+    <ul class="waiting" id="waiting-ticket">
         {% for ticket in unassigned_tickets %}
-            <li>
-                <strong>{{ ticket.subject }}</strong><br>
-                From: {{ ticket.created_by.username }}<br>
-                Description: {{ ticket.description }}<br>
-                <a href="{% url 'claim_ticket' ticket.id %}">Accept ticket</a>
+            <li class="ticket-item {{ ticket.priority }}">
+            <strong>{{ ticket.subject }}</strong><br>
+            From: {{ ticket.created_by.username }}<br>
+            Priority: <span class="priority-label {{ ticket.priority }}">{{ ticket.priority|title }}</span><br>
+            Description: {{ ticket.description }}<br>
+            Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
+
+            <a href="{% url 'claim_ticket' ticket.id %}">Accept ticket</a>
             </li>
         {% empty %}
             <li>No ticket</li>
         {% endfor %}
     </ul>
+</div>
 
-    <a href="{% url 'logout' %}">Logout</a>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
 </body>
 </html>
+
+
+<script>
+    const ctx = document.getElementById('ticketChart').getContext('2d');
+
+    const labels = ['Open', 'In Progress', 'Resolved', 'Closed'];
+    const values = [{{ open_count }}, {{ in_progress_count }}, {{ resolved_count }}, {{ closed_count }}];
+    const statusMap = {
+        'Open': 'open',
+        'In Progress': 'in_progress',
+        'Resolved': 'resolved',
+        'Closed': 'closed',
+    };
+
+    const chart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ticket Status',
+                data: values,
+                backgroundColor: ['#ff5378ff', '#ffc869ff', '#4bc0c0', '#ae86ffff',],
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.parsed}`;
+                        }
+                    }
+                }
+            },
+            onClick: function (evt, activeEls) {
+                if (activeEls.length > 0) {
+                    const clickedIndex = activeEls[0].index;
+                    const clickedLabel = labels[clickedIndex];
+                    const status = statusMap[clickedLabel];
+                    const url = new URL(window.location.href);
+
+                    url.searchParams.set('status', status); 
+                    window.location.href = url.toString(); 
+                }
+            }
+        }
+    });
+
+
+    function toggleDetails() {
+        const el = document.getElementById("details");
+        el.style.display = el.style.display === "none" ? "flex" : "none";
+    }
+
+
+const priorityLabels = {{ priority_stats|safe }}.map(p => p.priority);
+const priorityValues = {{ priority_stats|safe }}.map(p => p.count);
+
+const priorityMap = {
+    'high': 'high',
+    'medium': 'medium',
+    'low': 'low'
+};
+
+const priorityChart = new Chart(document.getElementById('priorityChart'), {
+    type: 'bar',
+    data: {
+        labels: priorityLabels,
+        datasets: [{
+            label: 'Tickets by Priority',
+            data: priorityValues,
+            backgroundColor: ['#fa8257','#ffff27','#ffc830'],
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return `${context.label}: ${context.parsed.y} tickets`;
+                    }
+                }
+            }
+        },
+        onClick: function (evt, activeEls) {
+            if (activeEls.length > 0) {
+                const clickedIndex = activeEls[0].index;
+                const clickedPriority = priorityLabels[clickedIndex].toLowerCase();  // sigurohemi që është e ulët
+                const priority = priorityMap[clickedPriority];
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('priority', priority);
+
+                // Opsionale: reseto filtrat e tjerë për të mos ngatërruar
+                url.searchParams.delete('status');
+                url.searchParams.delete('category');
+                url.searchParams.delete('search');
+                url.searchParams.delete('created_from');
+                url.searchParams.delete('created_to');
+
+                window.location.href = url.toString();
+            }
+        }
+    }
+});
+
+    const trendData = {{ tickets_over_time|safe }};
+    const trendLabels = trendData.map(t => {
+    const date = new Date(t.day);
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short'
+        });
+    });
+
+const trendCounts = trendData.map(t => t.count);
+
+const trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Tickets Accepted (Last 30 Days)',
+            data: trendCounts,
+            borderColor: '#3498db',
+            backgroundColor: '#ecf7ff',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 6,
+            pointHoverRadius: 9
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                labels: {
+                    font: {
+                        size: 14
+                    }
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Date'
+                }
+            },
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Tickets'
+                },
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        onClick: (evt, activeEls) => {
+            if (activeEls.length > 0) {
+                const idx = activeEls[0].index;
+                const clickedDateISO = trendData[idx].day;  // psh '2025-07-17'
+
+                // Build URL with created_from and created_to filtering for clicked date
+                const url = new URL(window.location.href);
+                url.searchParams.set('created_from', clickedDateISO);
+                url.searchParams.set('created_to', clickedDateISO);
+
+                url.searchParams.delete('status');
+                url.searchParams.delete('priority');
+                url.searchParams.delete('category');
+                url.searchParams.delete('search');
+
+                // Redirect to filtered page
+                window.location.href = url.toString();
+            }
+        }
+    }
+});
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+        document.getElementById('current-date').textContent = formattedDate;
+    });
+
+function showChart(type) {
+    const charts = ['status', 'priority', 'trend'];
+    charts.forEach(c => {
+        document.getElementById(`chart-${c}`).style.display = (c === type) ? 'block' : 'none';
+    });
+}
+
+</script>

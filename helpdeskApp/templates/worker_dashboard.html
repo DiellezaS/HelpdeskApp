@@ -1,381 +1,61 @@
+{% load static %}
+{% comment %} {% load humanize %} {% endcomment %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Worker Dashboard</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-            color: #2d3436;
-            font-size: 16px;
-            line-height: 1.6;
-        }
+    <link rel="stylesheet" type="text/css" href="{% static 'css/worker.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
 
-        h2 {
-            color: #2c3e50;
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            color: #2c3e50;
-            font-size: 20px;
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-
-        section {
-            margin-bottom: 40px;
-        }
-
-        button, .btn {
-            background: #3498db;
-            color: #fff;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-        }
-
-        button:hover, .btn:hover {
-            background: #2980b9;
-        }
-
-        button:focus, input:focus, textarea:focus, select:focus, a:focus {
-            outline: 2px solid #3498db;
-            outline-offset: 2px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        ul li {
-            background: #fff;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        ul li:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        ul li strong {
-            font-size: 16px;
-            color: #2c3e50;
-        }
-
-        ul li a {
-            display: inline-block;
-            margin-top: 5px;
-            font-size: 14px;
-            color: #2980b9;
-        }
-
-        ul li a:hover {
-            text-decoration: underline;
-        }
-
-        #faqChatbotModal {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 320px;
-            max-height: 80vh;
-            background: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            overflow-y: auto;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        #faqChatbotModal.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        #faqChatbotModal h3 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            color: #2c3e50;
-        }
-
-        #faqChatbotModal .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: #7f8c8d;
-        }
-
-        #faqChatbotModal .close-btn:hover {
-            color: #2c3e50;
-        }
-
-        #faqQuestions button {
-            background: #ecf0f1;
-            color: #2c3e50;
-            border: 1px solid #bdc3c7;
-            width: 100%;
-            text-align: left;
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        #faqQuestions button:hover {
-            background: #dfe6e9;
-        }
-
-        #faqQuestions button:disabled {
-            background: #f5f6fa;
-            color: #b2bec3;
-            cursor: not-allowed;
-        }
-
-        #faqAnswer {
-            margin-top: 10px;
-            font-weight: semibold;
-            color: rgb(241, 110, 53);
-        }
-
-        #questionForm {
-            margin-top: 20px;
-        }
-
-        #questionInput {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #dfe6e9;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        #questionInput:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        #submitQuestion {
-            width: 100%;
-            padding: 12px;
-            background: #3498db;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        #submitQuestion:hover {
-            background: #2980b9;
-        }
-
-        #response {
-            margin-top: 15px;
-            padding: 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            display: none;
-        }
-
-        #response.show {
-            display: block;
-        }
-
-        #response.answer {
-            background: #e0f7fa;
-            color: rgb(120, 219, 207);
-            border-left: 4px solid #00796b;
-        }
-
-        #response.ticket {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #856404;
-        }
-
-        #response.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #721c24;
-        }
-
-        form {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        form input,
-        form textarea,
-        form select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #dfe6e9;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        form input:focus,
-        form textarea:focus,
-        form select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
-
-        form button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background: #3498db;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        form button[type="submit"]:hover {
-            background: #2980b9;
-        }
-
-        .message {
-            background: #e0f7fa;
-            color: #00796b;
-            padding: 12px;
-            border-left: 4px solid #00796b;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-
-        a {
-            color: #2980b9;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .filter-form {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .filter-form label {
-            font-weight: bold;
-            color: #2c3e50;
-            margin-right: 10px;
-        }
-
-        .filter-form select {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #333;
-            background-color: #fff;
-            cursor: pointer;
-        }
-
-        .filter-form select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 0 10px;
-            }
-
-            #faqChatbotModal {
-                width: 90%;
-                right: 5%;
-                bottom: 10px;
-            }
-
-            form {
-                padding: 15px;
-            }
-
-            button, .btn {
-                padding: 8px 12px;
-            }
-
-            .filter-form {
-                padding: 10px;
-            }
-
-            .filter-form select {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
 </head>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/worker" class="logo">Worker Dashboard</a>
+            <button class="menu-toggle" aria-label="Toggle navigation" onclick="toggleMenu()">☰</button>
+            <ul class="nav-links">
+                <li><a href="#ticket-list">Your Tickets</a></li>
+                <li><a href="#" role=button onclick="toggleInProgressModal()">In Progress</a></li>
+                <li><a href="#create-ticket">Create Ticket</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
 <body>
+
     <div class="container">
         <section>
-            <h3>Worker Dashboard</h3>
             <h2>Welcome {{ user.username }}!</h2>
+            <p class="text-text-secondary">
+                Here's your dashboard overview for <span id="current-date"></span>
+            </p>
+            
             <button class="btn" onclick="openFAQChat()">Open FAQ Chatbot</button>
         </section>
 
-        <div>
-            <form method="get" class="filter-form">
-                {% csrf_token %}
-                <label for="status_filter">Filter by Status:</label>
-                <select name="status" id="status_filter" onchange="this.form.submit()">
-                    <option value="">All</option>
-                    <option value="open" {% if request.GET.status == 'open' %}selected{% endif %}>Open</option>
-                    <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                    <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolved</option>
-                    <option value="closed" {% if request.GET.status == 'closed' %}selected{% endif %}>Closed</option>
-                </select>
-            </form>
-        <div>
 
-        <!-- FAQ Chatbot Modal -->
+        <div id="inProgressModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="toggleInProgressModal()">&times;</span>
+                <h3>In Progress Tickets</h3>
+                {% if accepted_tickets %}
+                    <ul>
+                        {% for ticket in accepted_tickets %}
+                            <li>
+                                <strong>{{ ticket.subject }}</strong><br>
+                                Assigned to: <strong>{{ ticket.assigned_to.username }}</strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No tickets are currently in progress.</p>
+                {% endif %}
+            </div>
+        </div>
+ 
+        <!-- FAQ Chatbot -->
         <div id="faqChatbotModal" role="dialog" aria-labelledby="faqModalTitle" style="display:none;">
             <button class="close-btn" onclick="closeFAQChat()" aria-label="Close FAQ Chatbot">×</button>
             <h3 id="faqModalTitle">Hello!</h3>
@@ -396,136 +76,469 @@
             </form>
         </div>
 
-        <!-- Messages -->
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
         <!-- Answer -->
         {% if answer %}
             <div class="message">{{ answer }}</div>
         {% endif %}
 
+
+    <div class="part">
+        <section id="ticket-summary">
+        <h2>Ticket Summary</h2>
+
+        <div class="chart-cards">
+            <div class="chart-container">
+                <h3>Tickets Status</h3>
+                <canvas id="ticketChart" width="350" height="350" style="max-width: 350px; max-height: 350px;"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Tickets Created Over Time</h3>
+                <canvas id="ticketTrendChart" width="600" height="300" style="max-width: 350px; max-height: 350px;"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Tickets by Category</h3>
+                <canvas id="categoryChart" width="400" height="400" style="max-width: 350px; max-height: 350px;"></canvas>
+            </div>
+        </div>
+        </section>
+
+        <section id="recent-activity">
+            <h2>Recent Activity</h2>
+            <ul>
+                {% if recent_comments %}
+                    {% for comment in recent_comments %}
+                        <li>
+                            <strong>{{ comment.author.username }}</strong> commented on 
+                            <a href="{% url 'ticket_detail' comment.ticket.id %}">{{ comment.ticket.subject|truncatewords:5 }}</a><br>
+                            <small>{{ comment.created_at }}</small>
+                            <p>{{ comment.content|truncatewords:15 }}</p>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li>No recent activity.</li>
+                {% endif %}
+            </ul>
+        </section>
+    </div>
+
+            <form method="get" action="{% url 'worker_dashboard' %}" class="search-form">
+                <!-- Search input -->
+                <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
+
+                <!-- Category dropdown -->
+                <select name="category" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="software" {% if category == "software" %}selected{% endif %}>Software</option>
+                    <option value="hardware" {% if category == "hardware" %}selected{% endif %}>Hardware</option>
+                    <option value="network" {% if category == "network" %}selected{% endif %}>Network</option>
+                    <option value="other" {% if category == "other" %}selected{% endif %}>Other</option>
+                </select>
+
+                <select name="priority" class="filter-select">
+                    <option value="">Priority</option>
+                    <option value= "high" {% if priority == "high" %}selected{% endif %}>High</option>
+                    <option value= "medium" {% if priority == "medium" %}selected{% endif %}>Medium</option>
+                    <option value= "low" {% if priority == "low" %}selected{% endif %}>Low</option>
+                </select>
+
+                <!-- Status dropdown -->
+                <select name="status" class="filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+                    <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                    <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+                </select>
+                
+                <input type="date" name="created_from" value="{{ created_from }}">
+                <input type="date" name="created_to" value="{{ created_to }}">
+                <!-- Buttons -->
+                <button type="submit" class="search-button">Filter</button>
+                <a href="{% url 'worker_dashboard' %}" class="reset-button">Reset</a>
+            </form>
+
+
+            <form method="get" action="{% url 'worker_dashboard' %}" style="margin-bottom: 1rem; text-align: center;">
+                {% for key, value in request.GET.items %}
+                    {% if key != 'show_all' %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" name="show_all" value="{% if show_all %}0{% else %}1{% endif %}" style="padding: 10px 20px; border-radius: 12px; background-color:#ffc4be; border:none; color:#fff; font-weight:600; cursor:pointer;">
+                    {% if show_all %}
+                        Show Last 7 Days Tickets
+                    {% else %}
+                        Show All Created Tickets
+                    {% endif %}
+                </button>
+            </form>
+
+{% comment %} pjesa e titullit qe tregon cfare tickets po shfaqen  {% endcomment %}
+            {% if status or category or priority or created_from or created_to or search_query %}
+                <div class="filter-info" role="region" aria-live="polite" aria-atomic="true" aria-label="Filter information">
+                    <strong>Showing tickets with:</strong>
+                    {% if status %} <span>Status: {{ status|title }}</span>{% endif %}
+                    {% if category %} <span>Category: {{ category|title }}</span>{% endif %}
+                    {% if priority %} <span>Priority: {{ priority|title }}</span>{% endif %}
+                    {% if created_from and created_to and created_from == created_to %}
+                        <span>Date: {{ created_from }}</span>
+                    {% elif created_from or created_to %}
+                        <span>Date Range: {{ created_from|default:"Any" }} to {{ created_to|default:"Any" }}</span>
+                    {% endif %}
+                    {% if search_query %} <span>Search: "{{ search_query }}"</span>{% endif %}
+                </div>
+            {% endif %}
+
+    <div>
         <!-- Ticket List -->
         <section id="ticket-list">
             <h2>Your Tickets</h2>
             <ul>
-                {% for ticket in tickets %}
-                    <li>
-                        <strong>{{ ticket.subject }}</strong> - Status: {{ ticket.status }}<br>
-                        <a href="{% url 'ticket_detail' ticket.id %}">See and add comment</a>
-                    </li>
+            {% for ticket in tickets %}
+                <li class="ticket-item {{ ticket.priority }}">
+                    <strong>{{ ticket.subject }}</strong>
+                    <div class="status">Status: {{ ticket.status }}</div>
+                    <div class="description">{{ ticket.description|truncatewords:20 }}</div>
+                    <a href="{% url 'ticket_detail' ticket.id %}">See and add comment</a>
+                </li>
+
                 {% empty %}
-                    <li>You don't have any tickets.</li>
+                    <li>
+                        <strong>No Tickets Available</strong>
+                        <div class="description">You don't have any tickets.</div>
+                    </li>
                 {% endfor %}
             </ul>
         </section>
+    </div>
 
-        <!-- Create Ticket Form -->
-        <section id="create-ticket">
-            <h2>Create a Ticket</h2>
-            <form method="post">
+        <!-- Ticket Form -->
+        {% comment %} <button class="btn" onclick="openFAQChat()">Open FAQ Chatbot</button> {% endcomment %}
+
+        <h3 style="font-weight: 700;">Create a Ticket</h3>
+        <section id="create-ticket" style="position: relative;">
+            <div id="formOverlay" class="form-overlay">
+                <div class="form-popup">
+                    <p>Please see all FAQs to unlock the form.</p>
+                    <button class="btn" onclick="openFAQChat()">Open FAQ Chatbot</button>
+                </div>
+            </div>
+            
+            {% comment %} <h2>Create a Ticket</h2> {% endcomment %}
+            <form method="post" id="ticketForm">
                 {% csrf_token %}
                 {{ form.as_p }}
-                <button type="submit" name="submit_ticket">Submit Ticket</button>
+                <p id="ticketNotice" style="color: red;">Please see all FAQs to unlock the form .</p>
+                <button type="submit" name="submit_ticket" id="submitTicketBtn" disabled>Submit Ticket</button>
             </form>
         </section>
 
-        <a href="{% url 'logout' %}">Logout</a>
     </div>
 
-    <script>
-        const faqPairs = [
-            { question: "What is the password policy?", answer: "Your password must contain at least 8 characters, including uppercase and numbers." },
-            { question: "How to reset my password?", answer: "Click on 'Forgot Password' at login and follow the instructions." },
-            { question: "Where can I see my tickets?", answer: "You can see your tickets listed in the 'Your Tickets' section of the dashboard." },
-            { question: "How long does a ticket take?", answer: "Tickets are usually resolved within 24-48 hours depending on priority." },
-            { question: "What if I forgot my username?", answer: "Contact your system administrator or submit a helpdesk ticket." }
-        ];
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
-        let answeredCount = 0;
-
-        function openFAQChat() {
-            const modal = document.getElementById("faqChatbotModal");
-            modal.style.display = "block";
-            setTimeout(() => modal.classList.add("show"), 10);
-        }
-
-        function closeFAQChat() {
-            const modal = document.getElementById("faqChatbotModal");
-            modal.classList.remove("show");
-            setTimeout(() => {
-                modal.style.display = "none";
-                document.getElementById("faqAnswer").innerHTML = "";
-                document.getElementById("answer").innerHTML = "";
-                document.getElementById("answer").className = "";
-                answeredCount = 0;
-            }, 300);
-        }
-
-        function selectQuestion(index) {
-            const answerDiv = document.getElementById("faqAnswer");
-            answerDiv.innerHTML = `<strong>${faqPairs[index].answer}</strong>`;
-            answeredCount++;
-
-            const buttons = document.querySelectorAll("#faqQuestions button");
-            buttons[index].disabled = true;
-
-            if (answeredCount >= faqPairs.length) {
-                setTimeout(() => {
-                    answerDiv.innerHTML = "You have viewed all FAQs. Now you can create a ticket below.";
-                    document.getElementById("create-ticket").scrollIntoView({ behavior: "smooth" });
-                }, 1500);
-            }
-        }
-
-        document.getElementById("questionForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const questionInput = document.getElementById("question").value.trim();
-            const responseDiv = document.getElementById("answer");
-
-            if (!questionInput) {
-                responseDiv.textContent = "Please enter a question.";
-                responseDiv.className = "error show";
-                return;
-            }
-
-            try {
-                const formData = new FormData();
-                formData.append("question", questionInput);
-                formData.append("submit_question", "true");
-                formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
-
-                const response = await fetch("/worker/", {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.status === "answered") {
-                    responseDiv.textContent = `Answer: ${data.answer}`;
-                    responseDiv.className = "answer show";
-                } else if (data.status === "ticket_created") {
-                    responseDiv.textContent = `No answer found. A ticket has been created for your question: "${questionInput}". Our team will respond soon.`;
-                    responseDiv.className = "ticket show";
-                } else {
-                    responseDiv.textContent = "An error occurred. Please try again later.";
-                    responseDiv.className = "error show";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                responseDiv.textContent = "An error occurred while processing your request.";
-                responseDiv.className = "error show";
-            }
-
-            document.getElementById("question").value = "";
-        });
-    </script>
 </body>
 </html>
+
+<script>
+const faqPairs = [
+    { question: "What is the password policy?", answer: "Your password must contain at least 8 characters, including uppercase and numbers." },
+    { question: "How to reset my password?", answer: "Click on 'Forgot Password' at login and follow the instructions." },
+    { question: "Where can I see my tickets?", answer: "You can see your tickets listed in the 'Your Tickets' section of the dashboard." },
+    { question: "How long does a ticket take?", answer: "Tickets are usually resolved within 24-48 hours depending on priority." },
+    { question: "What if I forgot my username?", answer: "Contact your system administrator or submit a helpdesk ticket." }
+];
+
+let answeredCount = 0;
+
+function openFAQChat() {
+    const modal = document.getElementById("faqChatbotModal");
+    modal.style.display = "block";
+    setTimeout(() => modal.classList.add("show"), 10);
+}
+
+function closeFAQChat() {
+    const modal = document.getElementById("faqChatbotModal");
+    modal.classList.remove("show");
+
+    setTimeout(() => {
+        modal.style.display = "none";
+        document.getElementById("faqAnswer").innerHTML = "";
+        document.getElementById("answer").innerHTML = "";
+        document.getElementById("answer").className = "";
+
+        // Reset buttons
+        const buttons = document.querySelectorAll("#faqQuestions button");
+        buttons.forEach(button => button.disabled = false);
+
+        // ruan count nëse janë parë të gjitha
+        if (answeredCount < faqPairs.length) {
+            answeredCount = 0;  // vetëm nëse s’i ka parë të gjitha
+            document.getElementById("submitTicketBtn").disabled = true;
+            document.getElementById("ticketNotice").style.display = "block";
+
+            const overlay = document.getElementById("formOverlay");
+            if (overlay) {
+                overlay.style.display = "flex";
+            }
+        }
+    }, 300);
+}
+        // nuk bllokohet forma nëse përdoruesi i ka parë të gjitha faq
+        if (answeredCount < faqPairs.length) {
+            document.getElementById("submitTicketBtn").disabled = true;
+            document.getElementById("ticketNotice").style.display = "block";
+            
+            const overlay = document.getElementById("formOverlay");
+            if (overlay) {
+                overlay.style.display = "flex";
+            }
+        }
+
+
+function selectQuestion(index) {
+    const answerDiv = document.getElementById("faqAnswer");
+    answerDiv.innerHTML = `<strong>${faqPairs[index].answer}</strong>`;
+    answeredCount++;
+
+    const buttons = document.querySelectorAll("#faqQuestions button");
+    buttons[index].disabled = true;
+
+    if (answeredCount >= faqPairs.length) {
+        setTimeout(() => {
+            answerDiv.innerHTML = "You have viewed all FAQs. Now you can create a ticket below.";
+            document.getElementById("create-ticket").scrollIntoView({ behavior: "smooth" });
+
+            // Enable the ticket form
+            document.getElementById("submitTicketBtn").disabled = false;
+            document.getElementById("ticketNotice").style.display = "none";
+            document.getElementById("submitTicketBtn").disabled = false;
+
+            // Fshih overlay-in që bluron formën
+            const overlay = document.getElementById("formOverlay");
+            if (overlay) {
+                overlay.style.display = "none";
+            }
+
+        }, 1500);
+    }
+}
+document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.getElementById("formOverlay");
+    if (overlay) {
+        overlay.style.display = "flex";
+    }
+});
+
+function toggleMenu() {
+    const navLinks = document.querySelector(".nav-links");
+    navLinks.classList.toggle("active");
+}
+
+document.getElementById("questionForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const questionInput = document.getElementById("question").value.trim();
+    const responseDiv = document.getElementById("answer");
+
+    if (!questionInput) {
+        responseDiv.textContent = "Please enter a question.";
+        responseDiv.className = "error show";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("question", questionInput);
+    formData.append("submit_question", "true");
+    formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+    const response = await fetch("/worker/", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    });
+
+    const data = await response.json();
+
+    if (data.status === "answered") {
+        responseDiv.textContent = `Answer: ${data.answer}`;
+        responseDiv.className = "answer show";
+    } else if (data.status === "ticket_created") {
+        responseDiv.textContent = `No answer found. A ticket has been created for your question: "${questionInput}". An agent will respond soon.`;
+        responseDiv.className = "ticket show";
+    } else {
+        responseDiv.textContent = "An error occurred. Please try again later.";
+        responseDiv.className = "error show";
+    }
+
+    document.getElementById("question").value = "";
+});
+
+// Chart.js Pie Chart
+const ctx = document.getElementById('ticketChart').getContext('2d');
+const labels = ['Open', 'In Progress', 'Resolved', 'Closed'];
+const values = [{{ open_count }}, {{ in_progress_count }}, {{ resolved_count }}, {{ closed_count }}];
+const statusMap = {
+    'Open': 'open',
+    'In Progress': 'in_progress',
+    'Resolved': 'resolved',
+    'Closed': 'closed'
+};
+
+const chart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Ticket Status',
+            data: values,
+            backgroundColor: ['#ff6384', '#36a2eb', '#4bc0c0', '#9966ff'],
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return `${context.label}: ${context.parsed}`;
+                    }
+                }
+            }
+        },
+        onClick: function (evt, activeEls) {
+            if (activeEls.length > 0) {
+                const clickedIndex = activeEls[0].index;
+                const clickedLabel = labels[clickedIndex];
+                const status = statusMap[clickedLabel];
+                const url = new URL(window.location.href);
+                url.searchParams.set('status', status);
+                window.location.href = url.toString();
+            }
+        }
+    }
+});
+
+
+const trendCtx = document.getElementById('ticketTrendChart').getContext('2d');
+
+const trendLabels = {{ trend_labels|safe }};       // ["Jul 01", "Jul 02", ...]
+const trendDatesRaw = {{ trend_dates_raw|safe }};  // ["2025-07-01", "2025-07-02", ...]
+const trendData = {{ trend_counts|safe }};
+
+
+const trendChart = new Chart(trendCtx, {
+    type: 'line',
+    data: {
+        labels: trendLabels,
+        datasets: [{
+            label: 'Tickets Over Time',
+            data: trendData,
+            borderColor: '#3498db',
+            backgroundColor: '#ecf7ff',
+            fill: true,
+            tension: 0.2,
+            pointRadius: 6,
+            pointHoverRadius: 9
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        onClick: function (evt, activeEls) {
+            if (activeEls.length > 0) {
+                const clickedIndex = activeEls[0].index;
+                const clickedDate = trendDatesRaw[clickedIndex];  // Format: YYYY-MM-DD
+                const url = new URL(window.location.href);
+                url.searchParams.set('created_from', clickedDate);
+                url.searchParams.set('created_to', clickedDate);
+                window.location.href = url.toString();
+            }
+        }
+
+    }
+});
+
+
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryLabels = {{ category_labels|safe }};  // ["software", "hardware", "network", "other"]
+
+const categoryChart = new Chart(categoryCtx, {
+    type: 'pie',
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            label: 'Tickets in Category',
+            data: {{ category_counts|safe }},
+            backgroundColor: ['#ff9f40', '#4bc0c0', '#ffcd56', '#9966ff'],
+            borderColor: '#fff',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        onClick: function (evt, activeEls) {
+            if (activeEls.length > 0) {
+                const clickedIndex = activeEls[0].index;
+                const clickedCategory = categoryLabels[clickedIndex].toLowerCase();
+
+                const url = new URL(window.location.href);
+                url.searchParams.set('category', clickedCategory);
+                window.location.href = url.toString();
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return `${context.label}: ${context.parsed}`;
+                    }
+                }
+            }
+        }
+    }
+});
+
+
+function toggleInProgressModal() {
+    const modal = document.getElementById('inProgressModal');
+    if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+    } else {
+        modal.style.display = 'block';
+    }
+}
+
+// Optional: close modal on outside click
+window.onclick = function(event) {
+    const modal = document.getElementById('inProgressModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date();
+        const formattedDate = today.toLocaleDateString('en-GB', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+        document.getElementById('current-date').textContent = formattedDate;
+    });
+
+</script>

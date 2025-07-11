@@ -16,26 +16,29 @@ class CustomLoginForm(AuthenticationForm):
     username=forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
     password=forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
-    role = forms.ChoiceField(
-        choices=ROLE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-
+    
 class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
-        fields = ['subject', 'description']
+        fields = ['subject', 'description', 'priority', 'category']
+        widgets = {
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+        }
 
-
-
-
-
+# class UpdateTicketStatusForm(forms.ModelForm):
+#     class Meta:
+#         model = Ticket
+#         fields = ['status']
+        
 class UpdateTicketStatusForm(forms.ModelForm):
     class Meta:
         model = Ticket
-        fields = ['status']
-        
-        
+        fields = ['status', 'priority']
+        widgets = {
+            'status': forms.Select(choices=Ticket.STATUS_CHOICES),
+            'priority': forms.Select(choices=Ticket.PRIORITY_CHOICES),
+        }
     
 class FAQQuestionForm(forms.Form):
     question = forms.CharField(label='your question', max_length=255)

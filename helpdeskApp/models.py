@@ -13,13 +13,25 @@ class CustomUser(AbstractUser):
     role=models.CharField(max_length=25, choices=ROLE_CHOICES)
 
 
-
 class Ticket(models.Model):
     STATUS_CHOICES = (
         ('open', 'Open'),
         ('in_progress', 'In Progress'),
         ('resolved', 'Resolved'),
         ('closed', 'Closed'),
+    )
+
+    PRIORITY_CHOICES = (
+        ('high', 'High'),
+        ('medium', 'Medium'),
+        ('low', 'Low'),
+    )
+
+    CATEGORY_CHOICES = (
+        ('software', 'Software'),
+        ('hardware', 'Hardware'),
+        ('network', 'Network'),
+        ('other', 'Other'),
     )
 
     created_by = models.ForeignKey(
@@ -38,6 +50,8 @@ class Ticket(models.Model):
     subject = models.CharField(max_length=255)
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -64,3 +78,23 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'Comments from : {self.author.username} for Ticket #{self.ticket.id}'
+
+
+
+
+class ActivityLog(models.Model):
+    ACTIVITY_TYPES = [
+        
+        ('resolved', 'Resolved Ticket'),
+        ('closed', 'Closed Ticket'),
+        ('updated', 'Updated Ticket'),
+        ('assigned', 'New Ticket Assigned'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ticket = models.ForeignKey('Ticket', on_delete=models.CASCADE)
+    type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} {self.get_type_display()} - {self.ticket.subject}"

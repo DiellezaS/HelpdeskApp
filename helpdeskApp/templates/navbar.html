@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Helpdesk Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css\login.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+
+</head>
+
+ <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/worker" class="logo">Worker Dashboard</a>
+            <button class="menu-toggle" aria-label="Toggle navigation" onclick="toggleMenu()">☰</button>
+            <ul class="nav-links">
+                <li><a href="#ticket-list">Your Tickets</a></li>
+                <li><a href="#create-ticket">Create Ticket</a></li>
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+<body>
+
+</body>
+</html>
