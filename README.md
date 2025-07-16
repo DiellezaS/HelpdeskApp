@@ -146,12 +146,13 @@ python manage.py migrate
 
 ## Project Structure
 
-- `helpdesk/` - Django project folder.  
-- `tickets/` - Main app handling ticket creation, views, models, forms.  
-- `templates/` - HTML templates for different roles and pages.  
-- `static/` - CSS, JavaScript.
-- `manage.py` - Django management script.
-
+Helpdesk/                  # Root project folder 
+├── helpdesk/              # Django project folder (contains settings, urls, wsgi, etc.)
+│   ├── templates/         # HTML templates for all pages and user roles
+│   ├── static/            # Static files such as CSS, JavaScript, and images
+│   └── ...                # Other Django project files (settings.py, urls.py, etc.)
+├── db.sqlite3             # SQLite database file
+├── manage.py              # Django management script for running commands
 ---
 
 ## Technologies
