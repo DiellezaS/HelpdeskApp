@@ -25,3 +25,4 @@ sqlparse @ file:///home/conda/feedstock_root/build_artifacts/sqlparse_1734007102
 tqdm==4.67.1
 typing-inspection==0.4.1
 typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1733188668063/work
+ 
