@@ -1,4 +1,4 @@
-# Helpdesk Ticketing System
+# Helpdesk System
 
 A full-featured Django-based Helpdesk application for managing IT support tickets, with role-based dashboards and interactive ticket workflows.
 
