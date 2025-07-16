@@ -19,12 +19,16 @@ from helpdeskApp import views
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
+
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('worker/', views.worker_dashboard, name='worker_dashboard'),
     path('agent/', views.agent_dashboard, name='agent_dashboard'),
+    path('', lambda request: redirect('login'), name='root_redirect'),
+
     
     path('agent/ticket/<int:ticket_id>/update/', views.update_ticket_status, name='update_ticket_status'),
 
@@ -35,6 +39,10 @@ urlpatterns = [
     path('workerticket/<int:ticket_id>/', views.ticket_detail, name='ticket_detail'),
 
     path('agentticket/<int:ticket_id>/', views.ticket_detail, name='ticket_detail_agent'),
+
+    # path('all-recent-events/', views.all_recent_events, name='all_recent_events'),
+    path('agent/recent-events/', views.all_recent_events, name='all_recent_events'),
+
 
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),

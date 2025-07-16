@@ -1,5 +1,4 @@
 {% load static %}
-{% comment %} {% load humanize %} {% endcomment %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,23 +17,20 @@
                 <li><a href="#ticket-list">Your Tickets</a></li>
                 <li><a href="#" role=button onclick="toggleInProgressModal()">In Progress</a></li>
                 <li><a href="#create-ticket">Create Ticket</a></li>
+                <li><a onclick="openFAQChat()">FAQ</a></li>
                 <li><a href="{% url 'logout' %}">Logout</a></li>
             </ul>
         </div>
     </nav>
 
 <body>
-
     <div class="container">
         <section>
             <h2>Welcome {{ user.username }}!</h2>
             <p class="text-text-secondary">
                 Here's your dashboard overview for <span id="current-date"></span>
             </p>
-            
-            <button class="btn" onclick="openFAQChat()">Open FAQ Chatbot</button>
         </section>
-
 
         <div id="inProgressModal" class="modal">
             <div class="modal-content">
@@ -85,7 +81,6 @@
     <div class="part">
         <section id="ticket-summary">
         <h2>Ticket Summary</h2>
-
         <div class="chart-cards">
             <div class="chart-container">
                 <h3>Tickets Status</h3>
@@ -106,57 +101,81 @@
 
         <section id="recent-activity">
             <h2>Recent Activity</h2>
-            <ul>
-                {% if recent_comments %}
-                    {% for comment in recent_comments %}
-                        <li>
-                            <strong>{{ comment.author.username }}</strong> commented on 
-                            <a href="{% url 'ticket_detail' comment.ticket.id %}">{{ comment.ticket.subject|truncatewords:5 }}</a><br>
-                            <small>{{ comment.created_at }}</small>
-                            <p>{{ comment.content|truncatewords:15 }}</p>
-                        </li>
-                    {% endfor %}
-                {% else %}
+            <ul class="recent-activity-list">
+                {% for event in recent_events %}
+                    <li>
+                        {% if event.event_type == "comment" %}
+                            <strong>{{ event.author.username }}</strong> commented on 
+                            <a href="{% url 'ticket_detail' event.ticket.id %}">
+                                {{ event.ticket.subject|truncatewords:6 }}
+                            </a>
+                            <br>
+                            <small>{{ event.created_at|timesince }} ago</small>
+                            <p>{{ event.content|truncatewords:15 }}</p>
+
+                        {% elif event.event_type == "activity" %}
+                            <span class="activity-text">
+                                {% if event.type == 'resolved' %}
+                                    Resolved ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                {% elif event.type == 'closed' %}
+                                    Closed ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                {% elif event.type == 'updated' %}
+                                    Updated ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                {% elif event.type == 'assigned' %}
+                                    New ticket assigned <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                {% endif %}
+                            </span>
+                            <br>
+                            <small>{{ event.timestamp|timesince }} ago</small>
+                        {% endif %}
+                    </li>
+                {% empty %}
                     <li>No recent activity.</li>
-                {% endif %}
+                {% endfor %}
             </ul>
         </section>
+
     </div>
 
-            <form method="get" action="{% url 'worker_dashboard' %}" class="search-form">
-                <!-- Search input -->
-                <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
+            <form method="get" action="{% url 'worker_dashboard' %}">
+                <div class="search-form">
+                    <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
 
-                <!-- Category dropdown -->
-                <select name="category" class="filter-select">
-                    <option value="">All Categories</option>
-                    <option value="software" {% if category == "software" %}selected{% endif %}>Software</option>
-                    <option value="hardware" {% if category == "hardware" %}selected{% endif %}>Hardware</option>
-                    <option value="network" {% if category == "network" %}selected{% endif %}>Network</option>
-                    <option value="other" {% if category == "other" %}selected{% endif %}>Other</option>
-                </select>
+                    <select name="priority" class="filter-select">
+                        <option value="">Priority</option>
+                        <option value="high" {% if priority == "high" %}selected{% endif %}>High</option>
+                        <option value="medium" {% if priority == "medium" %}selected{% endif %}>Medium</option>
+                        <option value="low" {% if priority == "low" %}selected{% endif %}>Low</option>
+                    </select>
 
-                <select name="priority" class="filter-select">
-                    <option value="">Priority</option>
-                    <option value= "high" {% if priority == "high" %}selected{% endif %}>High</option>
-                    <option value= "medium" {% if priority == "medium" %}selected{% endif %}>Medium</option>
-                    <option value= "low" {% if priority == "low" %}selected{% endif %}>Low</option>
-                </select>
+                    <select name="status" class="filter-select">
+                        <option value="">Status</option>
+                        <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+                    </select>
 
-                <!-- Status dropdown -->
-                <select name="status" class="filter-select">
-                    <option value="">All Statuses</option>
-                    <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
-                    <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                    <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
-                    <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
-                </select>
-                
-                <input type="date" name="created_from" value="{{ created_from }}">
-                <input type="date" name="created_to" value="{{ created_to }}">
-                <!-- Buttons -->
-                <button type="submit" class="search-button">Filter</button>
-                <a href="{% url 'worker_dashboard' %}" class="reset-button">Reset</a>
+                    <fieldset id="advanced-filters" style="display: none;">
+                        <select name="category" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="software" {% if category == "software" %}selected{% endif %}>Software</option>
+                            <option value="hardware" {% if category == "hardware" %}selected{% endif %}>Hardware</option>
+                            <option value="network" {% if category == "network" %}selected{% endif %}>Network</option>
+                            <option value="other" {% if category == "other" %}selected{% endif %}>Other</option>
+                        </select>
+
+                        <input type="date" name="created_from" value="{{ created_from }}">
+                        <input type="date" name="created_to" value="{{ created_to }}">
+                    </fieldset>
+
+                    <button type="submit" class="search-button">Filter</button>
+                    <a href="{% url 'worker_dashboard' %}" class="reset-button">Reset</a>
+                </div>
+
+                    <div>
+                        <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">Advanced Filters</button>
+                    </div>
             </form>
 
 
@@ -195,22 +214,24 @@
         <!-- Ticket List -->
         <section id="ticket-list">
             <h2>Your Tickets</h2>
-            <ul>
-            {% for ticket in tickets %}
-                <li class="ticket-item {{ ticket.priority }}">
-                    <strong>{{ ticket.subject }}</strong>
-                    <div class="status">Status: {{ ticket.status }}</div>
-                    <div class="description">{{ ticket.description|truncatewords:20 }}</div>
-                    <a href="{% url 'ticket_detail' ticket.id %}">See and add comment</a>
-                </li>
-
+            <div class="ticket-grid">
+                {% for ticket in tickets %}
+                    <div class="ticket-card {{ ticket.status }}">
+                        <div class="ticket-header">
+                            <h3>{{ ticket.subject }}</h3>
+                            <span class="badge {{ ticket.priority }}">{{ ticket.priority|title }}</span>
+                        </div>
+                        <p class="ticket-description">{{ ticket.description|truncatewords:20 }}</p>
+                        <div class="ticket-footer">
+                            <span class="status-label {{ ticket.status }}">{{ ticket.status|title }}</span>
+                            <a href="{% url 'ticket_detail' ticket.id %}" class="view-link">View Details </a>
+                        </div>
+                    </div>
                 {% empty %}
-                    <li>
-                        <strong>No Tickets Available</strong>
-                        <div class="description">You don't have any tickets.</div>
-                    </li>
+                    <p class="no-tickets">You don't have any tickets.</p>
                 {% endfor %}
-            </ul>
+            </div>
+
         </section>
     </div>
 
@@ -460,7 +481,7 @@ const trendChart = new Chart(trendCtx, {
         onClick: function (evt, activeEls) {
             if (activeEls.length > 0) {
                 const clickedIndex = activeEls[0].index;
-                const clickedDate = trendDatesRaw[clickedIndex];  // Format: YYYY-MM-DD
+                const clickedDate = trendDatesRaw[clickedIndex];  
                 const url = new URL(window.location.href);
                 url.searchParams.set('created_from', clickedDate);
                 url.searchParams.set('created_to', clickedDate);
@@ -470,7 +491,6 @@ const trendChart = new Chart(trendCtx, {
 
     }
 });
-
 
 const categoryCtx = document.getElementById('categoryChart').getContext('2d');
 const categoryLabels = {{ category_labels|safe }};  // ["software", "hardware", "network", "other"]
@@ -522,7 +542,6 @@ function toggleInProgressModal() {
     }
 }
 
-// Optional: close modal on outside click
 window.onclick = function(event) {
     const modal = document.getElementById('inProgressModal');
     if (event.target === modal) {
@@ -538,7 +557,20 @@ window.onclick = function(event) {
             month: 'long',
             year: 'numeric'
         });
-        document.getElementById('current-date').textContent = formattedDate;
+    document.getElementById('current-date').textContent = formattedDate;
     });
+
+function toggleAdvanced() {
+    const advanced = document.getElementById("advanced-filters");
+    const toggleBtn = document.querySelector(".advanced-toggle");
+
+    if (advanced.style.display === "none") {
+        advanced.style.display = "flex";
+        toggleBtn.textContent = "Hide Advanced ";
+    } else {
+        advanced.style.display = "none";
+        toggleBtn.textContent = "Advanced Filters ";
+    }
+}
 
 </script>

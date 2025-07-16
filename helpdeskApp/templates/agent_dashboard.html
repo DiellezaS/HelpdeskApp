@@ -12,6 +12,7 @@
     <ul class="nav-links">
         <li><a href="#my-tickets">My Tickets</a></li>
         <li><a href="#waiting-ticket">Unassigned</a></li>
+        <li><a id="recent-events-btn" class="nav-link">Recent Activity</a></li>
         <li><a class="logout" href="{% url 'logout' %}">Logout</a></li>
     </ul>
 </nav>
@@ -23,140 +24,110 @@
                 Here's your dashboard overview for <span id="current-date"></span>
             </p>
 
-<div class="part_one">
-    
-        <section id="ticket-summary">
-            <h2>Ticket Summary</h2>
+    <div class="test">
+                
+        <div class="part_one">
+                <section id="ticket-summary">
+                    <h2>Ticket Summary</h2>
 
-            {% comment %} <div class="chart-cards">
+                        <div class="chart-cards">
 
-                <div class="chart-container">
-                    <h3>Ticket Status</h3>
-                    <canvas id="ticketChart" width="350" height="350" style="max-width: 350px; max-height: 350px;"></canvas>
-                </div>
+                        <div class="chart-container">
+                            <h3>Ticket Status</h3>
+                            <canvas id="ticketChart" width="350" height="350" style="max-width: 350px; max-height: 350px;"></canvas>
+                        </div>
 
-                <div class="chart-container">
-                    <h3>Tickets by Priority</h3>
-                    <canvas id="priorityChart" width="350" height="350"></canvas>
-                </div>
+                        <div class="chart-container">
+                            <h3>Tickets by Priority</h3>
+                            <canvas id="priorityChart" width="350" height="350"></canvas>
+                        </div>
 
-                <div class="chart-container">
-                    <h3>Tickets Accepted</h3>
-                    <canvas id="trendChart" width="400" height="400"></canvas>
-                </div>
-            </div> {% endcomment %}
+                        <div class="chart-container">
+                            <h3>Tickets Accepted</h3>
+                            <canvas id="trendChart" width="400" height="400"></canvas>
+                        </div>
+                    </div> 
+                </section>
 
-            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
-                <button onclick="showChart('status')" class="chart-btn">Ticket Status</button>
-                <button onclick="showChart('priority')" class="chart-btn">Tickets by Priority</button>
-                <button onclick="showChart('trend')" class="chart-btn">Tickets Accepted</button>
-            </div>
+                <div id="recent-activity">
+                    <h2>Recent Activity</h2>
+                    <ul class="recent-activity-list">
+                        {% for event in recent_events %}
+                            <li>
+                                {% if event.event_type == "comment" %}
+                                    <strong>{{ event.author.username }}</strong> commented on 
+                                    <a href="{% url 'ticket_detail' event.ticket.id %}">
+                                        {{ event.ticket.subject|truncatewords:6 }}
+                                    </a>
+                                    <br>
+                                    <small>{{ event.created_at|timesince }} ago</small>
+                                    <p>{{ event.content|truncatewords:8 }}</p>
 
-            <div class="chart-cards">
-                <div id="chart-status" class="chart-container" style="display: block;">
-                    <h3>Ticket Status</h3>
-                    <canvas id="ticketChart" width="350" height="350"></canvas>
-                </div>
-
-                <div id="chart-priority" class="chart-container" style="display: none;">
-                    <h3>Tickets by Priority</h3>
-                    <canvas id="priorityChart" width="350" height="350"></canvas>
-                </div>
-
-                <div id="chart-trend" class="chart-container" style="display: none;">
-                    <h3>Tickets Accepted</h3>
-                    <canvas id="trendChart" width="400" height="400"></canvas>
-                </div>
-            </div>
-
-        </section>
-
-    {% comment %} <h2>Agent dashboard</h2> {% endcomment %}
-        <section id="recent-activity">
-            <h2>Recent Comments</h2>
-            <ul>
-                {% if recent_comments %}
-                    {% for comment in recent_comments %}
-                        <li>
-                            <strong>{{ comment.author.username }}</strong> commented on 
-                            <a href="{% url 'ticket_detail' comment.ticket.id %}">{{ comment.ticket.subject|truncatewords:6 }}</a><br>
-                            <small>{{ comment.created_at}}</small>
-                            <p>{{ comment.content|truncatewords:15 }}</p>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <li>No recent activity.</li>
-                {% endif %}
-            </ul>
-        </section>
-
-        <section id="recent-activity">
-            <h2>Recent Activity</h2>
-            <ul class="recent-activity-list">
-                {% if recent_activity %}
-                    {% for activity in recent_activity %}
-                        <li>
-                            <span class="activity-text">
-                                {% if activity.type == 'resolved' %}
-                                    Resolved ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
-                                {% elif activity.type == 'closed' %}
-                                    Closed ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
-                                {% elif activity.type == 'updated' %}
-                                    Updated ticket <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
-                                {% elif activity.type == 'assigned' %}
-                                    New ticket assigned <a href="{% url 'ticket_detail' activity.ticket.id %}">{{ activity.ticket.subject }}</a>
+                                {% elif event.event_type == "activity" %}
+                                    <span class="activity-text">
+                                        {% if event.type == 'resolved' %}
+                                            Resolved ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                        {% elif event.type == 'closed' %}
+                                            Closed ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                        {% elif event.type == 'updated' %}
+                                            Updated ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                        {% elif event.type == 'assigned' %}
+                                            New ticket assigned <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                                        {% endif %}
+                                    </span>
+                                    <br>
+                                    <small>{{ event.timestamp|timesince }} ago</small>
                                 {% endif %}
-                            </span>
-                            <br>
-                            <small>{{ activity.timestamp|timesince }} ago</small>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <li>No recent activity.</li>
-                {% endif %}
-            </ul>
-        </section>
+                            </li>
+                        {% empty %}
+                            <li>No recent activity.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            
+            </div>
+        </div>
     
-        
-        
-    </div>
+         <form method="get" action="{% url 'agent_dashboard' %}">
+                <div class="search-form">
+                    <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
 
-        <form method="get" action="{% url 'agent_dashboard' %}" class="search-form">
-            <!-- Search input -->
-            <input type="text" name="search" placeholder="Search tickets..." value="{{ search_query }}" class="search-input">
+                    <select name="priority" class="filter-select">
+                        <option value="">Priority</option>
+                        <option value="high" {% if priority == "high" %}selected{% endif %}>High</option>
+                        <option value="medium" {% if priority == "medium" %}selected{% endif %}>Medium</option>
+                        <option value="low" {% if priority == "low" %}selected{% endif %}>Low</option>
+                    </select>
 
-            <!-- Category dropdown -->
-            <select name="category" class="filter-select">
-                <option value="">All Categories</option>
-                <option value="software" {% if category == 'software' %}selected{% endif %}>Software</option>
-                <option value="hardware" {% if category == 'hardware' %}selected{% endif %}>Hardware</option>
-                <option value="network" {% if category == 'network' %}selected{% endif %}>Network</option>
-                <option value="other" {% if category == 'other' %}selected{% endif %}>Other</option>
-            </select>
+                    <select name="status" class="filter-select">
+                        <option value="">Status</option>
+                        <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+                    </select>
 
-            <select name="priority" class="filter-select">
-                <option value="">Priority</option>
-                <option value= "high" {% if priority == 'high' %}selected{% endif %}>High</option>
-                <option value= "medium" {% if priority == 'medium' %}selected{% endif %}>Medium</option>
-                <option value= "low" {% if priority == 'low' %}selected{% endif %}>Low</option>
-            </select>
+                    <fieldset id="advanced-filters" style="display: none;">
+                        <select name="category" class="filter-select">
+                            <option value="">All Categories</option>
+                            <option value="software" {% if category == "software" %}selected{% endif %}>Software</option>
+                            <option value="hardware" {% if category == "hardware" %}selected{% endif %}>Hardware</option>
+                            <option value="network" {% if category == "network" %}selected{% endif %}>Network</option>
+                            <option value="other" {% if category == "other" %}selected{% endif %}>Other</option>
+                        </select>
 
-            <!-- Status dropdown -->
-            <select name="status" class="filter-select">
-                <option value="">All Statuses</option>
-                <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
-                <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>In Progress</option>
-                <option value="resolved" {% if status == 'resolved' %}selected{% endif %}>Resolved</option>
-                <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
-            </select>
+                        <input type="date" name="created_from" value="{{ created_from }}">
+                        <input type="date" name="created_to" value="{{ created_to }}">
+                    </fieldset>
 
-            <input type="date" name="created_from" value="{{ created_from }}">
-            <input type="date" name="created_to" value="{{ created_to }}">
-         
-            <!-- Buttons -->
-            <button type="submit" class="search-button">Filter</button>
-            <a href="{% url 'agent_dashboard' %}" class="reset-button">Reset</a>
-        </form>
+                    <button type="submit" class="search-button">Filter</button>
+                    <a href="{% url 'agent_dashboard' %}" class="reset-button">Reset</a>
+
+                </div>
+                    <div>
+                        <button type="button" class="advanced-toggle" onclick="toggleAdvanced()">Advanced Filters</button>
+                    </div>
+            </form>
 
         <div style=" display:flex;justify-content: center;">
         {% comment %} pjesa e titullit qe tregon cfare tickets po shfaqen  {% endcomment %}
@@ -177,9 +148,9 @@
         </div>
 
     
-    <div style="display:flex; justify-content: flex-start; gap:16px;">
+    <div style="display:flex; gap:16px;">
 
-        <form method="get" action="{% url 'agent_dashboard' %}" style="margin-bottom: 1rem; text-align: center;">
+        <form method="get" action="{% url 'agent_dashboard' %}" style=" text-align: center;">
             <!-- Preserve existing GET parameters except 'created_from' and 'created_to' -->
             {% for key, value in request.GET.items %}
                 {% if key != 'created_from' and key != 'created_to' %}
@@ -189,12 +160,12 @@
             
             <button type="submit" name="created_from" value="{% now 'Y-m-d' %}" 
                     formaction="{% url 'agent_dashboard' %}" 
-                    formmethod="get" style="padding:15px; ">
+                    formmethod="get" style="padding:15px; border-radius:12px;">
                 Show Today's Tickets
             </button>
         </form>
 
-        <form method="get" action="{% url 'agent_dashboard' %}" style="margin-bottom: 1rem; text-align: center;">
+        <form method="get" action="{% url 'agent_dashboard' %}" style=" text-align: center;">
             {% for key, value in request.GET.items %}
                 {% if key != 'show_all' %}
                     <input type="hidden" name="{{ key }}" value="{{ value }}">
@@ -208,6 +179,7 @@
                 {% endif %}
             </button>
         </form>
+        
     </div>
                 {% if not status and not category and not priority and not created_from and not created_to and not search_query %}
                     <h2 style="text-align: center; margin-bottom: 1rem;">
@@ -218,49 +190,56 @@
                         {% endif %}
                     </h2>
                 {% endif %}
-                
 
-    <div class="tt" id="my-tickets">
-    {% if tickets %}
-        {% for ticket in tickets %}
-        <div class="ticket-item {{ ticket.priority }}">
-            <strong>{{ ticket.subject }}</strong><br>
-            From: {{ ticket.created_by.username }}<br>
-            Status: {{ ticket.status }}<br>
-            Priority: <span class="priority-label {{ ticket.priority }}">{{ ticket.priority|title }}</span><br>
-            Description: {{ ticket.description }}<br>
-            Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
-
-            <a href="{% url 'ticket_detail' ticket.id %}">VIEW / COMMENT</a> |
-            <a href="{% url 'update_ticket_status' ticket.id %}">Update status</a>
-        </div>
-        {% endfor %}
-    {% else %}
+    <div class="ticket-grid" id="my-tickets">
+        {% if tickets %}
+            {% for ticket in tickets %}
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <h3>{{ ticket.subject }}</h3>
+                    <span class="badge {{ ticket.priority }}">{{ ticket.priority|title }}</span>
+                </div>
+                <p><strong>Status:</strong> <span class="status-label {{ ticket.status }}">{{ ticket.status|title }}</span></p>
+                <p><strong>From:</strong> {{ ticket.created_by.username }}</p>
+                <p>{{ ticket.description|truncatewords:15 }}</p>
+                <p><strong>Created:</strong> {{ ticket.created_at|date:"d M Y H:i" }}</p>
+                    <a href="{% url 'ticket_detail' ticket.id %}" class="btn">View / Comment</a>
+                    <a href="{% url 'update_ticket_status' ticket.id %}" class="btn" style="margin-left: 10px;">Update</a>
+            </div>
+            {% endfor %}
+        {% else %}
             <p style="text-align: center;">No tickets found for the selected option.</p>
-    {% endif %}
-
+        {% endif %}
     </div>
 
-<div>
     <h2 style="display:flex; justify-content:center">Unassigned Tickets</h2>
-    <ul class="waiting" id="waiting-ticket">
+    <div class="ticket-grid" id="waiting-ticket">
         {% for ticket in unassigned_tickets %}
-            <li class="ticket-item {{ ticket.priority }}">
-            <strong>{{ ticket.subject }}</strong><br>
-            From: {{ ticket.created_by.username }}<br>
-            Priority: <span class="priority-label {{ ticket.priority }}">{{ ticket.priority|title }}</span><br>
-            Description: {{ ticket.description }}<br>
-            Created at: {{ ticket.created_at|date:"d M Y H:i" }}<br>
-
-            <a href="{% url 'claim_ticket' ticket.id %}">Accept ticket</a>
-            </li>
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <h3>{{ ticket.subject }}</h3>
+                    <span class="badge {{ ticket.priority }}">{{ ticket.priority|title }}</span>
+                </div>
+                <p><strong>From:</strong> {{ ticket.created_by.username }}</p>
+                <p>{{ ticket.description|truncatewords:15 }}</p>
+                <p><strong>Created:</strong> {{ ticket.created_at|date:"d M Y H:i" }}</p>
+                <div style="margin-bottom:4px;">
+                    <a href="{% url 'claim_ticket' ticket.id %}" class="btn">Accept Ticket</a>
+                </div>
+            </div>
         {% empty %}
-            <li>No ticket</li>
+            <p style="text-align: center;">No unassigned tickets.</p>
         {% endfor %}
-    </ul>
-</div>
+    </div>
 
-
+        <div id="recent-events-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>All Recent Events</h2>
+                <ul id="event-list" class="recent-activity-list">
+                </ul>
+            </div>
+        </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
@@ -443,8 +422,6 @@ const trendChart = new Chart(document.getElementById('trendChart'), {
             if (activeEls.length > 0) {
                 const idx = activeEls[0].index;
                 const clickedDateISO = trendData[idx].day;  // psh '2025-07-17'
-
-                // Build URL with created_from and created_to filtering for clicked date
                 const url = new URL(window.location.href);
                 url.searchParams.set('created_from', clickedDateISO);
                 url.searchParams.set('created_to', clickedDateISO);
@@ -454,7 +431,6 @@ const trendChart = new Chart(document.getElementById('trendChart'), {
                 url.searchParams.delete('category');
                 url.searchParams.delete('search');
 
-                // Redirect to filtered page
                 window.location.href = url.toString();
             }
         }
@@ -478,5 +454,49 @@ function showChart(type) {
         document.getElementById(`chart-${c}`).style.display = (c === type) ? 'block' : 'none';
     });
 }
+
+function toggleAdvanced() {
+    const advanced = document.getElementById("advanced-filters");
+    const toggleBtn = document.querySelector(".advanced-toggle");
+
+    if (advanced.style.display === "none") {
+        advanced.style.display = "flex";
+        toggleBtn.textContent = "Hide Advanced ";
+    } else {
+        advanced.style.display = "none";
+        toggleBtn.textContent = "Advanced Filters ";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const modal = document.getElementById("recent-events-modal");
+    const btn = document.getElementById("recent-events-btn");
+    const closeBtn = modal.querySelector(".close");
+    const eventList = document.getElementById("event-list");
+
+    btn.addEventListener("click", () => {
+        modal.style.display = "block";
+
+        fetch("{% url 'all_recent_events' %}")
+            .then(res => res.text())
+            .then(html => {
+                eventList.innerHTML = html;
+            })
+            .catch(() => {
+                eventList.innerHTML = "<li>Error loading recent events.</li>";
+            });
+    });
+
+    closeBtn.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+
+    window.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+});
 
 </script>

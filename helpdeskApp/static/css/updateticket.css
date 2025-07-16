@@ -3,11 +3,28 @@
     font-family: 'Quicksand', sans-serif;
     background-color: var(--bg-light);
     color: var(--text-dark);
-    max-width: 800px;
+    max-width: 100%;
     margin: 0 auto;
     padding: 20px;
     
 }
+/* Navbar Styles */
+.navbar {
+    background-color: #7bc8f4ff;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar .logo {
+    color: #fff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
 
 h2 {
     color: #2c3e50;

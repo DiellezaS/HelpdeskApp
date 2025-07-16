@@ -1,0 +1,30 @@
+{% for event in recent_events %}
+    <li>
+        {% if event.event_type == "comment" %}
+            <strong>{{ event.author.username }}</strong> commented on 
+            <a href="{% url 'ticket_detail' event.ticket.id %}">
+                {{ event.ticket.subject|truncatewords:6 }}
+            </a>
+            <br>
+            <small>{{ event.created_at|timesince }} ago</small>
+            <p>{{ event.content|truncatewords:15 }}</p>
+
+        {% elif event.event_type == "activity" %}
+            <span class="activity-text">
+                {% if event.type == 'resolved' %}
+                    Resolved ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                {% elif event.type == 'closed' %}
+                    Closed ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                {% elif event.type == 'updated' %}
+                    Updated ticket <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                {% elif event.type == 'assigned' %}
+                    New ticket assigned <a href="{% url 'ticket_detail' event.ticket.id %}">{{ event.ticket.subject }}</a>
+                {% endif %}
+            </span>
+            <br>
+            <small>{{ event.timestamp|timesince }} ago</small>
+        {% endif %}
+    </li>
+{% empty %}
+    <li>No recent events found.</li>
+{% endfor %}

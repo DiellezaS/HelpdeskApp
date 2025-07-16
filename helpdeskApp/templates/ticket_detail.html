@@ -94,10 +94,28 @@
         a:hover {
             text-decoration: underline;
         }
+        
+        .navbar {
+            background-color: #7bc8f4ff;
+            padding: 12px 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar .logo {
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .navbar .logo:hover {
+            text-decoration: underline;
+        }
+
     </style>
     
     <nav class="navbar">
-    <a href="/agent" class="logo"> Dashboard</a>
+    <a href="/agent" class="logo"> HOME</a>
     </nav>
 
 </head>
@@ -117,15 +135,21 @@
             <h3>Comments</h3>
             <ul>
                 {% for comment in comments %}
-                    <li>
-                        <strong>{{ comment.author.username }}</strong>
-                        <span style="color:#888;">({{ comment.created_at|date:"d M Y H:i" }})</span><br>
-                        {{ comment.message }}
-                    </li>
+                    {% if comment.author.role == "agent" %}
+                        <li style="background-color: #eaf3ff; border-left: 4px solid #6c63ff;">
+                            <strong>{{ comment.author.username }} (Agent)</strong>
+                    {% else %}
+                        <li style="background-color: #fef6e4; border-left: 4px solid #f4a261;">
+                            <strong>{{ comment.author.username }} (Worker)</strong>
+                    {% endif %}
+                            <span style="color:#888;"> – {{ comment.created_at|date:"d M Y H:i" }}</span><br>
+                            <div style="margin-top: 6px;">{{ comment.message|linebreaksbr }}</div>
+                        </li>
                 {% empty %}
                     <li>No comments yet.</li>
                 {% endfor %}
             </ul>
+
         </section>
 
         <section>

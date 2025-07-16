@@ -25,11 +25,6 @@ class TicketForm(forms.ModelForm):
             'priority': forms.Select(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
         }
-
-# class UpdateTicketStatusForm(forms.ModelForm):
-#     class Meta:
-#         model = Ticket
-#         fields = ['status']
         
 class UpdateTicketStatusForm(forms.ModelForm):
     class Meta:

@@ -7,7 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
 
 </head>
-
+    <nav class="navbar">
+    <a href="/agent" class="logo"> HOME</a>
+    </nav>
 <body>
     <h2>Update Ticket Status</h2>
 <p><strong>subject:</strong> {{ ticket.subject }}</p>
@@ -21,7 +23,7 @@
 <a href="{% url 'agent_dashboard' %}">go back to agent dashboard </a>
 
 </body>
-</html> {% endcomment %}
+</html>  {% endcomment %}
 
 {% load static %}
 <!DOCTYPE html>
@@ -113,7 +115,9 @@
     </style>
    
 </head>
-
+    <nav class="navbar">
+        <a href="/agent" class="logo"> HOME</a>
+    </nav>
 <body>
     <div class="container">
         <h2> Update Ticket Status</h2>
