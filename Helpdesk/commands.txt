@@ -1,0 +1,6 @@
+git pull 
+git checkout -b [name_of_your_new_branch]
+git status   "checks which files have changes"
+git add file_name "adds the file to the repo"
+git commit -m "the message of the commit where u briefly describe what u did"
+git push origin name_of_your_new_branch
