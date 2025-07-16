@@ -145,7 +145,7 @@ python manage.py migrate
 ---
 
 ## Project Structure
-
+  ```bash
 Helpdesk/                  # Root project folder 
 ├── helpdesk/              # Django app folder (contains core logic and settings)
 │   ├── templates/         # HTML templates for all pages and user roles
@@ -158,6 +158,7 @@ Helpdesk/                  # Root project folder
 ├── db.sqlite3             # SQLite database file
 ├── manage.py              # Django management script
 
+```
 
 ## Technologies
 
