@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.env
+
+# Django
+db.sqlite3
+*.log
+staticfiles/
+media/
+.env
+
+# VS Code
+.vscode/
+
+# Windows / Mac
+Thumbs.db
+.DS_Store
+
+# Anaconda / Virtual Envs
+env/
+myenv/
+.venv/
+*.bak
+
+# ngrok
+ngrok.exe
+ngrok.yml
