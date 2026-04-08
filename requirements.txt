@@ -1,7 +1,5 @@
-asgiref @ file:///C:/Users/task_177184284708708/croot/asgiref_1771842961106/work
-Django @ file:///C:/Users/task_177159971056736/croot/django_1771599866014/work
+asgiref==3.8.1
+Django==5.1.4
 fuzzywuzzy==0.18.0
-packaging @ file:///C:/miniconda3/conda-bld/packaging_1761049098810/work
-setuptools==80.10.2
-sqlparse @ file:///C:/miniconda3/conda-bld/sqlparse_1764240087577/work
-wheel==0.46.3
+python-Levenshtein==0.12.2
+sqlparse==0.5.0
